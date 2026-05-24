@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>律师费 &amp; 诉讼费计算器 — 广东省律师服务政府指导价</title>
+<style>
+  :root {
+    --red-deep:    #8B1A2B;
+    --red-dark:    #6D1522;
+    --red-darker:  #4A0E16;
+    --gold:        #B8860B;
+    --gold-light:  #D4A843;
+    --gold-pale:   #F5EDDA;
+    --bg:          #F3F1ED;
+    --card-bg:     #FFFFFF;
+    --border:      #D9D4CA;
+    --border-light:#EBE7DE;
+    --text:        #2B2120;
+    --text-secondary: #7A7268;
+    --danger:      #9B1B2B;
+    --highlight:   #FEF9F0;
+    --stripe:      #FAF8F5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Serif SC", STSong, "SimSun", serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(180deg, #6D1522 0%, #8B1A2B 60%, #7A1726 100%);
+    color: #fff;
+    padding: 30px 20px 26px;
+    text-align: center;
+    position: relative;
+    border-bottom: 3px solid var(--gold);
+    box-shadow: 0 3px 16px rgba(0,0,0,.2);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0; right: 0;
+    height: 1px;
+    background: rgba(184,134,11,.4);
+  }
+  .header-logo {
+    position: absolute;
+    left: 36px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+  }
+  .header-logo img {
+    width: 64px;
+    height: 64px;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,.35));
+    border-radius: 50%;
+  }
+  .header h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .header .subtitle {
+    font-size: 14px;
+    opacity: .9;
+    letter-spacing: 1px;
+    font-weight: 400;
+  }
+  @media (max-width: 640px) {
+    .header-logo { display: none; }
+    .header { padding: 24px 16px 20px; }
+    .header h1 { font-size: 22px; letter-spacing: 2px; }
+  }
+
+  /* ── Top Rule (red line) ── */
+  .top-rule {
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--red-deep), transparent);
+    margin: 0 auto;
+    max-width: 200px;
+    opacity: .5;
+  }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-radius: 6px 6px 0 0;
+    overflow: hidden;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 15px 24px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #9B5A5A;
+    transition: all .2s;
+    letter-spacing: 2px;
+    font-family: inherit;
+  }
+  .tab-btn:first-child { border-radius: 6px 0 0 0; }
+  .tab-btn:last-child { border-radius: 0 6px 0 0; }
+  .tab-btn.active { background: var(--red-deep); }
+  .tab-btn:hover:not(.active) { background: #A86B6B; }
+
+  /* ── Card body ── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--red-deep);
+    border-radius: 0 0 6px 6px;
+    padding: 32px 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Input section ── */
+  .input-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .input-group label {
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    color: var(--text);
+    letter-spacing: .5px;
+  }
+  .input-group input, .input-group select {
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+    font-family: inherit;
+    background: #FCFBF9;
+  }
+  .input-group input:focus, .input-group select:focus {
+    border-color: var(--red-deep);
+    box-shadow: 0 0 0 3px rgba(139,26,43,.08);
+    background: #fff;
+  }
+  .input-group input {
+    width: 220px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .btn-calc {
+    padding: 11px 36px;
+    background: var(--red-deep);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all .2s;
+    font-family: inherit;
+    border-bottom: 2px solid var(--red-darker);
+  }
+  .btn-calc:hover { background: var(--red-dark); }
+  .btn-calc:active { border-bottom-color: transparent; transform: translateY(1px); }
+  .btn-reset {
+    padding: 11px 22px;
+    background: #fff;
+    color: var(--text-secondary);
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: inherit;
+  }
+  .btn-reset:hover { border-color: #b0a99d; color: #555; background: #FAF8F5; }
+
+  /* ── Result cards ── */
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .result-card {
+    background: #FEFDFB;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    padding: 22px 20px;
+    text-align: center;
+    border-left: 4px solid var(--red-deep);
+  }
+  .result-card .label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .result-card .value {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--red-deep);
+    letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-card .value.highlight { color: var(--danger); font-size: 34px; }
+  .result-card .value.secondary { font-size: 21px; color: var(--text-secondary); }
+
+  /* ── Breakdown table ── */
+  .breakdown-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 24px 0 12px;
+    color: var(--red-deep);
+    border-left: 4px solid var(--red-deep);
+    padding-left: 12px;
+    letter-spacing: 1px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  thead th {
+    background: #8B1A2B;
+    color: #fff;
+    padding: 11px 12px;
+    text-align: center;
+    font-weight: 600;
+    border: none;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  thead th:first-child { border-radius: 3px 0 0 0; }
+  thead th:last-child { border-radius: 0 3px 0 0; }
+  tbody td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-light);
+  }
+  tbody tr { transition: background .15s; }
+  tbody tr:hover { background: #FEF9F0; }
+  tbody tr:nth-child(even) { background: var(--stripe); }
+  tbody tr:nth-child(even):hover { background: #FEF9F0; }
+  tbody tr.total-row {
+    font-weight: 700;
+    background: #F5EDDA !important;
+    border-top: 2px solid var(--red-deep);
+    border-bottom: 1px solid var(--gold-light);
+  }
+  .text-right { text-align: right; font-variant-numeric: tabular-nums; }
+  .text-muted { color: var(--text-secondary); font-size: 13px; }
+
+  /* ── Notes ── */
+  .notes {
+    background: #FEFCF7;
+    border: 1px solid #E5D9B8;
+    border-left: 4px solid var(--gold);
+    border-radius: 3px;
+    padding: 18px 22px;
+    margin-top: 24px;
+    font-size: 13px;
+    color: #6B5E3A;
+    line-height: 1.9;
+  }
+  .notes strong { color: #5A3E08; }
+  .notes ul { padding-left: 22px; }
+  .notes li { margin-bottom: 4px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .input-group input { width: 100%; }
+    .input-group { flex-direction: column; align-items: stretch; }
+    .btn-calc, .btn-reset { width: 100%; text-align: center; }
+    .result-card .value { font-size: 24px; }
+    .card { padding: 20px 14px; }
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 28px;
+    letter-spacing: .5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">
+    <img src="logo.png" alt="法律logo" />
+  </div>
+  <h1>律师费 &amp; 诉讼费 综合计算器</h1>
+  <div class="subtitle">广东省律师服务政府指导价 &amp; 《诉讼费用交纳办法》标准 | AI辅助起草，需执业律师审查确认</div>
+</div>
+
+<div class="container">
+
+  <!-- ══════ Tabs ══════ -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('lawyer')">⚖ 律师费计算</button>
+    <button class="tab-btn" onclick="switchTab('litigation')">🏛 诉讼费计算</button>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TAB 1: 律师费计算器                           -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="card">
+  <div id="tab-lawyer" class="tab-panel active">
+
+    <div class="input-group">
+      <label for="lawAmount">争议标的金额（元）：</label>
+      <input type="number" id="lawAmount" placeholder="请输入标的金额" min="0" step="1" onkeydown="if(event.key==='Enter')calcLawyer()">
+      <button class="btn-calc" onclick="calcLawyer()">计算律师费</button>
+      <button class="btn-reset" onclick="resetLawyer()">重置</button>
+    </div>
+
+    <div class="result-grid" id="lawResultGrid" style="display:none;">
+      <div class="result-card">
+        <div class="label">标准律师费</div>
+        <div class="value" id="lawStandard">—</div>
+      </div>
+      <div class="result-card">
+        <div class="label">下浮20%（最低）</div>
+        <div class="value secondary" id="lawDown">—</div>
+      </div>
+      <div class="result-card">
+        <div class="label">上浮20%（最高）</div>
+        <div class="value secondary" id="lawUp">—</div>
+      </div>
+    </div>
+
+    <div id="lawBreakdown" style="display:none;">
+      <div class="breakdown-title">分段计算明细</div>
+      <table>
+        <thead>
+          <tr><th>分段区间</th><th>费率</th><th>本级金额范围</th><th>本级收费（元）</th></tr>
+        </thead>
+        <tbody id="lawTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="notes">
+      <strong>收费说明：</strong>
+      <ul>
+        <li>依据：广东省律师服务政府指导价标准</li>
+        <li>上述收费标准允许上下浮动<strong>20%</strong></li>
+        <li>收费标准是代理诉讼案件<strong>一个审级</strong>的收费标准</li>
+        <li>未代理一审而代理二审的，按一审标准收费</li>
+        <li>曾代理一审再代理二审的，按一审标准减半收费</li>
+        <li>曾代理一审或二审，再代理发回重审、再审申请或确定再审案件的，按一审标准减半收费</li>
+        <li>涉及仲裁的案件，曾代理仲裁的，诉讼一审或二审阶段按仲裁标准减半收费</li>
+        <li>执行案件按一个审级收费</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TAB 2: 诉讼费计算器                           -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="tab-litigation" class="tab-panel">
+
+    <div class="input-group">
+      <label for="litType">案件类型：</label>
+      <select id="litType" onchange="onLitTypeChange()">
+        <option value="property">财产案件</option>
+        <option value="divorce">离婚案件</option>
+        <option value="personality">人格权案件</option>
+        <option value="non-property">其他非财产案件</option>
+        <option value="enforcement">申请执行</option>
+        <option value="preservation">申请保全</option>
+      </select>
+      <label for="litAmount" id="litAmountLabel">标的金额（元）：</label>
+      <input type="number" id="litAmount" placeholder="请输入标的金额" min="0" step="1" onkeydown="if(event.key==='Enter')calcLitigation()">
+      <button class="btn-calc" onclick="calcLitigation()">计算诉讼费</button>
+      <button class="btn-reset" onclick="resetLitigation()">重置</button>
+    </div>
+
+    <div class="result-grid" id="litResultGrid" style="display:none;">
+      <div class="result-card" style="grid-column: 1/-1;">
+        <div class="label">案件受理费 / 申请费</div>
+        <div class="value highlight" id="litFee">—</div>
+      </div>
+    </div>
+
+    <div id="litBreakdown" style="display:none;">
+      <div class="breakdown-title" id="litBdTitle">分段计算明细</div>
+      <table>
+        <thead id="litTableHead"></thead>
+        <tbody id="litTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="notes" id="litNotes">
+      <strong>法律依据：</strong>《诉讼费用交纳办法》（国务院令第481号）<br>
+      <strong>适用说明：</strong>选择不同案件类型查看对应收费标准。
+    </div>
+
+  </div>
+  </div><!-- /.card -->
+
+  <div class="footer">
+    AI辅助起草，需执业律师审查确认 &nbsp;|&nbsp; 数据来源：广东省律师服务政府指导价 &amp; 《诉讼费用交纳办法》
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  TAB SWITCHING
+// ════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', (name==='lawyer' && i===0) || (name==='litigation' && i===1));
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ════════════════════════════════════════════
+//  COMMON UTIL
+// ════════════════════════════════════════════
+function fmt(n) {
+  return Number(n).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtInt(n) {
+  return Number(n).toLocaleString('zh-CN', { maximumFractionDigits: 0 });
+}
+
+// ════════════════════════════════════════════
+//  律师费计算 — 广东省律师服务政府指导价
+// ════════════════════════════════════════════
+const LAWYER_BRACKETS = [
+  { lo: 0,        hi: 50000,      rate: null, fixed: 8000, label: '5万元以下',        range: '0 – 5万元' },
+  { lo: 50000,    hi: 100000,     rate: 0.08, label: '5万–10万部分',      range: '5 – 10万元' },
+  { lo: 100000,   hi: 500000,     rate: 0.05, label: '10万–50万部分',     range: '10 – 50万元' },
+  { lo: 500000,   hi: 1000000,    rate: 0.04, label: '50万–100万部分',    range: '50 – 100万元' },
+  { lo: 1000000,  hi: 5000000,    rate: 0.03, label: '100万–500万部分',   range: '100 – 500万元' },
+  { lo: 5000000,  hi: 10000000,   rate: 0.02, label: '500万–1000万部分',  range: '500 – 1000万元' },
+  { lo: 10000000, hi: 50000000,   rate: 0.01, label: '1000万–5000万部分', range: '1000 – 5000万元' },
+  { lo: 50000000, hi: Infinity,   rate: 0.005,label: '5000万以上部分',    range: '5000万元以上' },
+];
+
+function calcLawyerFee(amount) {
+  let total = 0;
+  let details = [];
+  for (let b of LAWYER_BRACKETS) {
+    if (amount <= b.lo) break;
+    let seg = Math.min(amount, b.hi) - b.lo;
+    let fee;
+    let rateLabel;
+    if (b.fixed !== undefined) {
+      fee = b.fixed;
+      rateLabel = '固定收费';
+    } else {
+      fee = seg * b.rate;
+      rateLabel = (b.rate * 100).toFixed(b.rate < 0.01 ? 1 : 0) + '%';
+    }
+    total += fee;
+    details.push({
+      label: b.label,
+      rate: rateLabel,
+      range: b.range,
+      seg: seg,
+      fee: fee,
+    });
+  }
+  return { total, details };
+}
+
+function calcLawyer() {
+  const raw = document.getElementById('lawAmount').value.trim();
+  if (!raw || isNaN(raw) || Number(raw) < 0) {
+    alert('请输入有效的标的金额。');
+    return;
+  }
+  const amount = Number(raw);
+  const { total, details } = calcLawyerFee(amount);
+
+  // Show result cards
+  document.getElementById('lawResultGrid').style.display = '';
+  document.getElementById('lawStandard').textContent = '¥ ' + fmt(total);
+  document.getElementById('lawDown').textContent = '¥ ' + fmt(total * 0.8);
+  document.getElementById('lawUp').textContent = '¥ ' + fmt(total * 1.2);
+
+  // Show breakdown
+  document.getElementById('lawBreakdown').style.display = '';
+  let html = '';
+  for (let d of details) {
+    html += '<tr>';
+    html += '<td>' + d.label + '</td>';
+    html += '<td>' + d.rate + '</td>';
+    html += '<td>' + d.range + '</td>';
+    html += '<td class="text-right">' + fmt(d.fee) + '</td>';
+    html += '</tr>';
+  }
+  // Total row
+  html += '<tr class="total-row">';
+  html += '<td colspan="3">合&nbsp;&nbsp;计</td>';
+  html += '<td class="text-right">' + fmt(total) + '</td>';
+  html += '</tr>';
+  document.getElementById('lawTableBody').innerHTML = html;
+}
+
+function resetLawyer() {
+  document.getElementById('lawAmount').value = '';
+  document.getElementById('lawResultGrid').style.display = 'none';
+  document.getElementById('lawBreakdown').style.display = 'none';
+}
+
+// ════════════════════════════════════════════
+//  诉讼费计算 — 《诉讼费用交纳办法》
+// ════════════════════════════════════════════
+
+// —— 财产案件 ——
+const PROPERTY_BRACKETS = [
+  { lo: 0,        hi: 10000,       rate: null,  fixed: 50,  label: '不超过1万元',              range: '0 – 1万元' },
+  { lo: 10000,    hi: 100000,      rate: 0.025, label: '1万–10万部分',             range: '1 – 10万元' },
+  { lo: 100000,   hi: 200000,      rate: 0.02,  label: '10万–20万部分',            range: '10 – 20万元' },
+  { lo: 200000,   hi: 500000,      rate: 0.015, label: '20万–50万部分',            range: '20 – 50万元' },
+  { lo: 500000,   hi: 1000000,     rate: 0.01,  label: '50万–100万部分',           range: '50 – 100万元' },
+  { lo: 1000000,  hi: 2000000,     rate: 0.009, label: '100万–200万部分',          range: '100 – 200万元' },
+  { lo: 2000000,  hi: 5000000,     rate: 0.008, label: '200万–500万部分',          range: '200 – 500万元' },
+  { lo: 5000000,  hi: 10000000,    rate: 0.007, label: '500万–1000万部分',         range: '500 – 1000万元' },
+  { lo: 10000000, hi: 20000000,    rate: 0.006, label: '1000万–2000万部分',        range: '1000 – 2000万元' },
+  { lo: 20000000, hi: Infinity,    rate: 0.005, label: '超过2000万部分',            range: '2000万元以上' },
+];
+
+// —— 保全费 ——
+const PRESERVATION_BRACKETS = [
+  { lo: 0,        hi: 1000,        rate: null, fixed: 30,  label: '不超过1000元（或不涉及财产）', range: '0 – 1000元' },
+  { lo: 1000,     hi: 100000,      rate: 0.01,  label: '1000–10万部分',            range: '1000 – 10万元' },
+  { lo: 100000,   hi: Infinity,    rate: 0.005, label: '超过10万部分',             range: '10万元以上',    max: 5000 },
+];
+
+function calcBracketFee(amount, brackets, opts) {
+  let total = 0;
+  let details = [];
+  for (let b of brackets) {
+    if (amount <= b.lo) break;
+    let seg = Math.min(amount, b.hi) - b.lo;
+    let fee;
+    let rateLabel;
+    if (b.fixed !== undefined) {
+      fee = b.fixed;
+      rateLabel = '固定收费';
+      seg = 0;
+    } else {
+      fee = seg * b.rate;
+      rateLabel = (b.rate * 100).toFixed(b.rate < 0.01 ? 1 : 0) + '%';
+    }
+    total += fee;
+    details.push({
+      label: b.label,
+      rate: rateLabel,
+      range: b.range,
+      seg: seg,
+      fee: fee,
+      max: b.max,
+    });
+  }
+  // Apply global max (for preservation)
+  let globalMax = null;
+  for (let b of brackets) { if (b.max) { globalMax = b.max; break; } }
+  if (globalMax && total > globalMax) {
+    total = globalMax;
+    details.push({ _maxNote: '（超出上限，按上限 ' + fmtInt(globalMax) + ' 元计算）' });
+  }
+  return { total, details };
+}
+
+function onLitTypeChange() {
+  const t = document.getElementById('litType').value;
+  const lbl = document.getElementById('litAmountLabel');
+  const inp = document.getElementById('litAmount');
+  if (t === 'non-property') {
+    lbl.style.display = 'none';
+    inp.style.display = 'none';
+  } else {
+    lbl.style.display = '';
+    inp.style.display = '';
+    if (t === 'enforcement') lbl.textContent = '执行金额（元，无金额填0）：';
+    else if (t === 'preservation') lbl.textContent = '保全金额（元）：';
+    else if (t === 'divorce') lbl.textContent = '涉及财产分割金额（元，超出20万部分计费）：';
+    else if (t === 'personality') lbl.textContent = '涉及赔偿金额（元，超出5万部分计费）：';
+    else lbl.textContent = '标的金额（元）：';
+  }
+  resetLitigation();
+}
+
+function calcLitigation() {
+  const type = document.getElementById('litType').value;
+  let amount = 0;
+  let needAmount = (type !== 'non-property');
+
+  if (needAmount) {
+    const raw = document.getElementById('litAmount').value.trim();
+    if (!raw || isNaN(raw) || Number(raw) < 0) {
+      alert('请输入有效金额。');
+      return;
+    }
+    amount = Number(raw);
+  }
+
+  let total = 0;
+  let details = [];
+  let tableCols = ['分段区间', '费率', '金额范围', '本级收费（元）'];
+  let title = '';
+
+  switch (type) {
+    // ── 财产案件 ──
+    case 'property': {
+      title = '财产案件 — 分段累计计算';
+      let r = calcBracketFee(amount, PROPERTY_BRACKETS, {});
+      total = r.total;
+      details = r.details;
+      break;
+    }
+    // ── 离婚案件 ──
+    case 'divorce': {
+      title = '离婚案件（财产分割超20万元部分按0.5%交纳）';
+      let base = 300; // 50-300, using upper limit 300
+      total = base;
+      details = [{ label: '案件受理费（基础）', rate: '固定收费', range: '—', seg: 0, fee: base }];
+      if (amount > 200000) {
+        let extra = (amount - 200000) * 0.005;
+        total += extra;
+        details.push({
+          label: '超出20万元部分 (0.5%)',
+          rate: '0.5%',
+          range: '20万以上部分',
+          seg: amount - 200000,
+          fee: extra,
+        });
+      }
+      break;
+    }
+    // ── 人格权案件 ──
+    case 'personality': {
+      title = '人格权案件（赔偿金额超5万元部分按1%交纳）';
+      let base = 500; // 100-500, using upper limit 500
+      total = base;
+      details = [{ label: '案件受理费（基础）', rate: '固定收费', range: '—', seg: 0, fee: base }];
+      if (amount > 50000) {
+        let extra = (amount - 50000) * 0.01;
+        total += extra;
+        details.push({
+          label: '超出5万元部分 (1%)',
+          rate: '1.0%',
+          range: '5万以上部分',
+          seg: amount - 50000,
+          fee: extra,
+        });
+      }
+      break;
+    }
+    // ── 其他非财产案件 ──
+    case 'non-property': {
+      title = '其他非财产案件';
+      total = 100;
+      details = [{ label: '案件受理费', rate: '固定收费', range: '50–100元/件', seg: 0, fee: 100 }];
+      break;
+    }
+    // ── 申请执行 ──
+    case 'enforcement': {
+      if (amount === 0) {
+        total = 500;
+        title = '申请执行（无执行金额）';
+        details = [{ label: '申请执行费（无执行金额）', rate: '固定收费', range: '50–500元/件', seg: 0, fee: 500 }];
+      } else {
+        let r = calcBracketFee(amount, PROPERTY_BRACKETS, {});
+        total = r.total;
+        details = r.details;
+        title = '申请执行 — 执行金额 ' + fmtInt(amount) + ' 元（按财产案件标准）';
+      }
+      break;
+    }
+    // ── 申请保全 ──
+    case 'preservation': {
+      title = '申请保全 — 分段计算（上限5000元）';
+      let r = calcBracketFee(amount, PRESERVATION_BRACKETS, {});
+      total = r.total;
+      details = r.details;
+      break;
+    }
+  }
+
+  // Display result
+  document.getElementById('litResultGrid').style.display = '';
+  document.getElementById('litFee').textContent = '¥ ' + fmt(total);
+
+  // Display breakdown
+  document.getElementById('litBreakdown').style.display = '';
+  document.getElementById('litBdTitle').textContent = title;
+
+  // Build table head
+  document.getElementById('litTableHead').innerHTML =
+    '<tr>' + tableCols.map(c => '<th>' + c + '</th>').join('') + '</tr>';
+
+  let html = '';
+  for (let d of details) {
+    if (d._maxNote) {
+      html += '<tr><td colspan="4" style="color:#c0392b;font-style:italic;">' + d._maxNote + '</td></tr>';
+      continue;
+    }
+    html += '<tr>';
+    html += '<td>' + (d.label || '') + '</td>';
+    html += '<td>' + (d.rate || '') + '</td>';
+    html += '<td>' + (d.range || '') + '</td>';
+    html += '<td class="text-right">' + fmt(d.fee) + '</td>';
+    html += '</tr>';
+  }
+  html += '<tr class="total-row">';
+  html += '<td colspan="3">合&nbsp;&nbsp;计</td>';
+  html += '<td class="text-right">' + fmt(total) + '</td>';
+  html += '</tr>';
+  document.getElementById('litTableBody').innerHTML = html;
+
+  // Update notes
+  let noteHtml = '';
+  switch (type) {
+    case 'property':
+      noteHtml = '<strong>法律依据：</strong>《诉讼费用交纳办法》第十三条（一）<br><strong>计算公式：</strong>分段累计计算，各段按对应比例分别计算后相加。<br><strong>适用：</strong>财产案件根据诉讼请求的金额或价额分段累计交纳。';
+      break;
+    case 'divorce':
+      noteHtml = '<strong>法律依据：</strong>《诉讼费用交纳办法》第十三条（二）<br><strong>标准：</strong>每件50–300元。涉及财产分割，财产总额不超过20万元的，不另行交纳；超过20万元的部分，按照0.5%交纳。<br><strong>说明：</strong>本计算器按照300元/件（上限）计算基础受理费。';
+      break;
+    case 'personality':
+      noteHtml = '<strong>法律依据：</strong>《诉讼费用交纳办法》第十三条（二）<br><strong>标准：</strong>每件100–500元。涉及损害赔偿，赔偿金额不超过5万元的，不另行交纳；超过5万元至10万元的部分，按照1%交纳；超过10万元的部分，按照0.5%交纳。<br><strong>说明：</strong>本计算器按简化标准计算。';
+      break;
+    case 'non-property':
+      noteHtml = '<strong>法律依据：</strong>《诉讼费用交纳办法》第十三条（三）<br><strong>标准：</strong>其他非财产案件每件交纳50–100元。<br><strong>说明：</strong>本计算器按照100元/件计算。';
+      break;
+    case 'enforcement':
+      noteHtml = '<strong>法律依据：</strong>《诉讼费用交纳办法》第十四条（一）<br><strong>标准：</strong>没有执行金额或者价额的，每件50–500元；有执行金额的，按财产案件标准交纳。<br><strong>说明：</strong>执行申请费不由申请人预交，执行后由被执行人负担。';
+      break;
+    case 'preservation':
+      noteHtml = '<strong>法律依据：</strong>《诉讼费用交纳办法》第十四条（二）<br><strong>标准：</strong>财产数额不超过1000元或不涉及财产数额的，每件30元；超过1000元至10万元的部分，按1%交纳；超过10万元的部分，按0.5%交纳。<strong>但最多不超过5000元。</strong><br><strong>说明：</strong>当事人申请保全措施交纳的费用最多不超过5000元。';
+      break;
+  }
+  document.getElementById('litNotes').innerHTML = noteHtml;
+}
+
+function resetLitigation() {
+  document.getElementById('litAmount').value = '';
+  document.getElementById('litResultGrid').style.display = 'none';
+  document.getElementById('litBreakdown').style.display = 'none';
+}
+
+// ── Init ──
+onLitTypeChange();
+</script>
+
+</body>
+</html>
